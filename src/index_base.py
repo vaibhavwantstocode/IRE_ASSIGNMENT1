@@ -12,24 +12,37 @@ class IndexInfo(Enum):
     TFIDF = 3
 
 class DataStore(Enum):
-    CUSTOM = 1
-    DB1 = 2
-    DB2 = 3
+    CUSTOM = 1  # Custom JSON storage (y=1) - IMPLEMENTED
+    DB1 = 2     # SQLite database (y=2) - IMPLEMENTED
+    DB2 = 3     # PostgreSQL (y=3) - FUTURE/NOT IMPLEMENTED
 
 class Compression(Enum):
-    NONE = 1
-    CODE = 2
-    CLIB = 3
+    NONE = 1  # No compression
+    CODE = 2  # Elias Gamma/Delta encoding (custom implementation)
+    CLIB = 3  # Zlib library compression
 
 class QueryProc(Enum):
     TERMatat = 'T'
     DOCatat = 'D'
 
 class Optimizations(Enum):
-    Null = '0'
-    Skipping = 'sp'
-    Thresholding = 'th'
-    EarlyStopping = 'es'
+    """
+    Index Optimizations
+    
+    BUILD-TIME (embedded in index structure):
+    - Skipping = 'sp': Skip pointers added to postings lists during indexing
+    
+    RUNTIME (query-time strategies):
+    - Thresholding = 'th': Filter low-score documents during query processing
+    - EarlyStopping = 'es': Stop early when top-k results are stable
+    
+    Note: Only build-time optimizations affect the index identifier.
+    Runtime optimizations are applied during query execution.
+    """
+    Null = '0'          # No optimization
+    Skipping = 'sp'     # BUILD-TIME: Skip pointers (requires special index)
+    Thresholding = 'th' # RUNTIME: Score thresholding
+    EarlyStopping = 'es' # RUNTIME: Early stopping
   
 class IndexBase(ABC):
     """
@@ -40,7 +53,8 @@ class IndexBase(ABC):
       long = [ IndexInfo[info], DataStore[dstore], Compression[compr], QueryProc[qproc], Optimizations[optim] ]
       short = [k.value for k in long]
       self.identifier_long = "core={}|index={}|datastore={}|compressor={}|qproc={}|optim={}".format(*[core]+[e.name for e in long])
-      self.identifier_short = "{}_i{}d{}c{}q{}o{}".format(*[core]+short)
+      # Fixed format: NO query mode parameter (runtime only)
+      self.identifier_short = "{}_i{}d{}c{}o{}".format(core, short[0], short[1], short[2], short[4])
         
     def __repr__(self):
         return f"{self.identifier_short}: {self.identifier_long}"
