@@ -99,6 +99,14 @@ SelfIndex_i1d1c1osp    # Boolean, JSON, No Compression, Skip Pointers
 
 > This allows reproduction of evaluation results without requiring 4-8 hours of index building time. Simply download and extract to the `indices/` directory.
 
+**Complete Codebase**: Full project including data, indices, preprocessed files, and all results (~1.5 GB):
+
+💾 [**Download Complete Project (Google Drive)**](https://drive.google.com/drive/folders/187HW7C2RqtkOwjeFh_adlZIIKinHyVLd?usp=sharing)
+
+**Source Code Repository**: Version-controlled source code, scripts, and documentation:
+
+🔗 [**GitHub Repository**](https://github.com/vaibhavwantstocode/IRE_ASSIGNMENT1)
+
 ### Test Queries (256 total)
 
 | Type | Count | % | Example |
