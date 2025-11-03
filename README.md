@@ -86,10 +86,18 @@ SelfIndex_i1d1c1osp    # Boolean, JSON, No Compression, Skip Pointers
 ## Dataset
 
 - **Total Documents**: 100,000
-- **Wikipedia**: 50,000 articles
-- **News**: 50,000 articles
+- **Wikipedia**: 50,000 articles from [HuggingFace Wikipedia Dataset](https://huggingface.co/datasets/wikimedia/wikipedia/viewer/20231101.en)
+- **News**: 50,000 articles from [Webhose Free News Datasets](https://github.com/Webhose/free-news-datasets)
 - **Preprocessing**: Tokenization, lowercasing, stopword removal, Porter stemming
 - **Location**: `preprocessed/preprocessed_data.json`
+
+### Reproducibility Resources
+
+**Pre-built Indices**: Due to size constraints (~3.3 GB total), all 12 pre-built index configurations are available for download:
+
+📦 [**Download Pre-built Indices (Google Drive)**](https://drive.google.com/drive/folders/126VycOfgOjit1S0xZIkBR9-jWo8lbMsp?usp=sharing)
+
+> This allows reproduction of evaluation results without requiring 4-8 hours of index building time. Simply download and extract to the `indices/` directory.
 
 ### Test Queries (256 total)
 
