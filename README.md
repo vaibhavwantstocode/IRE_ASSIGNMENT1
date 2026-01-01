@@ -30,7 +30,7 @@ This project implements a complete **Information Retrieval System** with multipl
 
 -  **3 Index Types**: Boolean, TF (Term Frequency), TF-IDF
 -  **2 Datastores**: Custom JSON, SQLite
--  **3 Compression Methods**: None, Elias-Fano, Zlib
+ -  **3 Compression Methods**: None, Elias (Gamma/Delta), Zlib
 -  **2 Query Modes**: TAAT (Term-at-a-Time), DAAT (Document-at-a-Time)
 -  **1 Build-Time Optimization**: Skip Pointers
 -  **Elasticsearch Comparison**: 3 cache scenarios
@@ -44,7 +44,7 @@ This project implements a complete **Information Retrieval System** with multipl
 2. **3 ES Scenarios** (COLD, WARM, MIXED cache)
 3. **7 Visualizations** (6 comparison plots + results table)
 4. **Skip Pointers**: 1.03x speedup for Boolean queries
-5. **Elias-Fano Compression**: 3.97x disk reduction
+5. **Elias (Gamma/Delta) Compression**: 3.97x disk reduction
 6. **Zlib Compression**: 2.48x disk reduction
 7. **256 Diverse Queries**: Single-term, multi-term, Boolean, phrase, complex
 
@@ -64,7 +64,7 @@ SelfIndex_i{x}d{y}c{z}o{optim}
 |-----------|--------|--------|-------------|
 | **Index Type** | `i{x}` | 1, 2, 3 | 1=Boolean, 2=TF, 3=TF-IDF |
 | **Datastore** | `d{y}` | 1, 2 | 1=Custom/JSON, 2=SQLite |
-| **Compression** | `c{z}` | 1, 2, 3 | 1=None, 2=Elias, 3=Zlib |
+| **Compression** | `c{z}` | 1, 2, 3 | 1=None, 2=Elias (Gamma/Delta), 3=Zlib |
 | **Optimization** | `o{optim}` | 0, sp | 0=None, sp=Skip Pointers (BUILD-TIME) |
 
 ** IMPORTANT**: Query mode (TAAT/DAAT) is **NOT** in the identifier because it is a **RUNTIME** parameter, not a build-time property!
@@ -75,7 +75,7 @@ SelfIndex_i{x}d{y}c{z}o{optim}
 SelfIndex_i1d1c1o0     # Boolean, JSON, No Compression, No Optimization
 SelfIndex_i2d1c1o0     # TF, JSON, No Compression, No Optimization
 SelfIndex_i3d1c1o0     # TF-IDF, JSON, No Compression, No Optimization
-SelfIndex_i3d1c2o0     # TF-IDF, JSON, Elias-Fano, No Optimization
+SelfIndex_i3d1c2o0     # TF-IDF, JSON, Elias (Gamma/Delta), No Optimization
 SelfIndex_i3d1c3o0     # TF-IDF, JSON, Zlib, No Optimization
 SelfIndex_i3d2c1o0     # TF-IDF, SQLite, No Compression, No Optimization
 SelfIndex_i1d1c1osp    # Boolean, JSON, No Compression, Skip Pointers
@@ -270,7 +270,7 @@ We modified the specification to fix a design flaw:
 - Selected at RUNTIME via `-q T` or `-q D` flag
 
 **Compression**
-- **Elias-Fano**: Custom implementation, 3.97x reduction
+ - **Elias (Gamma/Delta)**: Custom implementation, 3.97x reduction
 - **Zlib**: Library compression, 2.48x reduction
 
 ---
@@ -286,7 +286,7 @@ We modified the specification to fix a design flaw:
 | **Lowest Avg Latency** | 2.80ms | Boolean + Skip Pointers (TAAT) |
 | **Best P95 Latency** | 8.67ms | TF (TAAT) |
 | **Highest Throughput** | 357 QPS | Boolean + Skip Pointers (TAAT) |
-| **Smallest Disk** | 164 MB | Elias-Fano (3.97x compression) |
+| **Smallest Disk** | 164 MB | Elias (Gamma/Delta) (3.97x compression) |
 
 ### Compression Trade-offs
 
@@ -316,12 +316,12 @@ We modified the specification to fix a design flaw:
 
 ### 2. Compression: Space vs Speed
 
-Elias-Fano gives best compression (3.97x) but +1160% latency penalty!
+Elias (Gamma/Delta) gives best compression (3.97x) but +1160% latency penalty!
 
 **Recommendation**:
-- **Latency-critical**: No compression
-- **Balanced**: Zlib (2.48x, +172% latency)
-- **Archival**: Elias-Fano (maximum compression)
+ - **Latency-critical**: No compression
+ - **Balanced**: Zlib (2.48x, +172% latency)
+ - **Archival**: Elias (Gamma/Delta) (maximum compression)
 
 ### 3. TAAT vs DAAT
 
@@ -380,7 +380,7 @@ Worth implementing for Boolean-heavy workloads.
 
 - [x] Boolean, TF, TF-IDF implemented
 - [x] JSON and SQLite datastores
-- [x] Elias-Fano and Zlib compression
+- [x] Elias (Gamma/Delta) and Zlib compression
 - [x] TAAT and DAAT query modes
 - [x] Skip Pointers optimization
 - [x] Elasticsearch comparison

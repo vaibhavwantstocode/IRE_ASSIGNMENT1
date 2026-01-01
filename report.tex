@@ -221,7 +221,7 @@ All indices follow a systematic naming scheme defined in \texttt{src/index\_base
 \midrule
 \texttt{i\{x\}} & 1, 2, 3 & Index type: 1=Boolean, 2=TF, 3=TF-IDF \\
 \texttt{d\{y\}} & 1, 2 & Datastore: 1=JSON (custom), 2=SQLite \\
-\texttt{c\{z\}} & 1, 2, 3 & Compression: 1=None, 2=Elias-Fano, 3=Zlib \\
+	exttt{c\{z\}} & 1, 2, 3 & Compression: 1=None, 2=Elias (Gamma/Delta), 3=Zlib \\
 \texttt{o\{optim\}} & 0, sp & Optimization: 0=None, sp=Skip Pointers \\
 \bottomrule
 \end{tabular}
@@ -560,12 +560,12 @@ We implemented SQLite to demonstrate understanding of trade-offs and show when d
     \item Latency: 3.63 ms (baseline)
 \end{itemize}
 
-\subsubsection{Elias-Fano Compression (z=2)}
+\subsubsection{Elias (Gamma/Delta) Compression (z=2)}
 
 \textbf{Implementation}:
 \begin{itemize}
     \item Gap encoding: Store differences between sorted document IDs
-    \item Elias-Fano encoding: Split into high and low bits
+    \item Elias (Gamma/Delta) encoding: Split into high and low bits
     \item Variable-length encoding for small gaps
 \end{itemize}
 
@@ -599,7 +599,7 @@ We implemented SQLite to demonstrate understanding of trade-offs and show when d
     \item \textbf{Latency overhead}: +172\% (3.63ms $\rightarrow$ 9.87ms)
 \end{itemize}
 
-\textbf{Why better than Elias-Fano?}:
+	extbf{Why better than Elias (Gamma/Delta)?}:
 \begin{itemize}
     \item Optimized C library (faster decompression)
     \item Better balance between compression and speed
@@ -617,7 +617,7 @@ We implemented SQLite to demonstrate understanding of trade-offs and show when d
 \midrule
 None (Baseline) & 651 & 1.0x & 3.63 & Baseline \\
 Zlib & 263 & 2.48x & 9.87 & +172\% \\
-Elias-Fano & 164 & 3.97x & 45.72 & +1160\% \\
+Elias (Gamma/Delta) & 164 & 3.97x & 45.72 & +1160\% \\
 \bottomrule
 \end{tabular}
 \caption{Compression Trade-off Analysis}
@@ -626,7 +626,7 @@ Elias-Fano & 164 & 3.97x & 45.72 & +1160\% \\
 \textbf{Why Such Different Overhead - Deep Technical Analysis}:
 
 \begin{enumerate}
-    \item \textbf{Elias-Fano: +1160\% Latency Overhead}
+    \item \textbf{Elias (Gamma/Delta): +1160\% Latency Overhead}
     
     \textbf{Algorithm Complexity}:
     \begin{itemize}
@@ -657,7 +657,7 @@ Elias-Fano & 164 & 3.97x & 45.72 & +1160\% \\
     \textbf{Example}: For posting list with 10,000 document IDs:
     \begin{itemize}
         \item Uncompressed: Direct array access = 1\textmu s
-        \item Elias-Fano: Decode 10,000 numbers = 45ms (45,000x slower!)
+        \item Elias (Gamma/Delta): Decode 10,000 numbers = 45ms (45,000x slower!)
     \end{itemize}
     
     \item \textbf{Zlib: +172\% Latency Overhead}
@@ -700,7 +700,7 @@ Real-time search (P95 $<$ 10ms) & No compression & Latency critical, disk space 
 \midrule
 Moderate load (P95 $<$ 20ms) & Zlib & Balanced: 60\% space savings, acceptable latency \\
 \midrule
-Cold storage / Archive & Elias-Fano & Maximum compression, latency not critical \\
+Cold storage / Archive & Elias (Gamma/Delta) & Maximum compression, latency not critical \\
 \midrule
 Large corpus ($>$10M docs) & Zlib + SSD & Need compression, fast disk compensates \\
 \midrule
@@ -1256,7 +1256,7 @@ After configuring Elasticsearch to match SelfIndex (size=10, no \_source retriev
     
     \textbf{Why ES is Smaller}:
     \begin{itemize}
-        \item Lucene's custom compression: Optimized Elias-Fano + delta encoding
+        \item Lucene's custom compression: Optimized Elias (Gamma/Delta) + delta encoding
         \item Doc values: Columnar storage for numeric fields
         \item Stored fields compression: Zlib on document text
         \item No position lists for non-phrase queries (we store all positions)
@@ -1427,7 +1427,7 @@ ES Index & 450 & N/A & 1.45x \\
 \textbf{Key Observations}:
 \begin{itemize}
     \item SQLite uses 91\% less RAM (disk-based) but 5.8\% more disk (B-tree overhead)
-    \item Elias-Fano achieves 3.97x compression at cost of 12.6x slower queries
+    \item Elias (Gamma/Delta) achieves 3.97x compression at cost of 12.6x slower queries
     \item Elasticsearch has better compression (custom Lucene format)
 \end{itemize}
 
@@ -1470,7 +1470,7 @@ ES Index & 450 & N/A & 1.45x \\
 \midrule
 None & Baseline (651 MB) & Baseline (3.63ms) \\
 Zlib & 59.6\% smaller & +172\% slower \\
-Elias-Fano & 74.8\% smaller & +1160\% slower \\
+Elias (Gamma/Delta) & 74.8\% smaller & +1160\% slower \\
 \bottomrule
 \end{tabular}
 \caption{Compression Trade-off Summary}
@@ -1480,7 +1480,7 @@ Elias-Fano & 74.8\% smaller & +1160\% slower \\
 \begin{itemize}
     \item \textbf{Real-time search}: No compression (latency-critical)
     \item \textbf{Moderate scale}: Zlib (balanced trade-off)
-    \item \textbf{Archival/cold storage}: Elias-Fano (space-critical)
+    \item \textbf{Archival/cold storage}: Elias (Gamma/Delta) (space-critical)
 \end{itemize}
 
 \subsection{Datastore Selection}
@@ -1552,7 +1552,7 @@ Skip pointers provided \textbf{modest 3.1\% improvement}:
 \begin{enumerate}
     \item \textbf{Three index types}: Boolean, TF, TF-IDF (as required)
     \item \textbf{Two datastores}: JSON (custom), SQLite (off-the-shelf)
-    \item \textbf{Two compression methods}: Elias-Fano (custom), Zlib (library)
+    \item \textbf{Two compression methods}: Elias (Gamma/Delta) (custom), Zlib (library)
     \item \textbf{Two query modes}: TAAT, DAAT
     \item \textbf{One optimization}: Skip pointers (build-time)
     \item \textbf{Elasticsearch comparison}: Three cache scenarios (COLD, WARM, MIXED)
