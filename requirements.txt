@@ -1,0 +1,20 @@
+# Core dependencies
+nltk>=3.8
+pandas>=2.0
+pyarrow>=12.0
+
+# Evaluation & metrics
+psutil>=5.9
+numpy>=1.24
+matplotlib>=3.7
+
+# Local semantic search (optional: pip install -e ".[semantic]" or ".[ui]")
+# chromadb>=0.4
+# sentence-transformers>=2.2
+# markitdown>=0.0.1
+# pymupdf4llm>=0.0.5
+# streamlit>=1.28
+
+# Testing
+pytest>=7.0
+pytest-cov>=4.0
